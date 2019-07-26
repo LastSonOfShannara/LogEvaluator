@@ -25,4 +25,12 @@ namespace LogEvaluetor
 
         }
     }
+
+    public class ReadingBadFormatException : Exception
+    {
+        public ReadingBadFormatException(string message) : base(message)
+        {
+
+        }
+    }
 }

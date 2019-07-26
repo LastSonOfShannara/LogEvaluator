@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace LogEvaluetor
 {
@@ -13,6 +14,7 @@ namespace LogEvaluetor
         {
             IsEvelueted = true;
             double deviation = 0;
+            double average_temp = readings.Sum((reading) => reading.value) / (double)readings.Count;
             foreach (var reading in readings)
             {
                 var actualDeviation = Math.Abs(referenceValue - reading.value);
@@ -21,10 +23,13 @@ namespace LogEvaluetor
                 if (actualDeviation > 5)
                     return string.Format(outputFormat, name, "precise");
             }
-            if (deviation >= 3)
+            bool IsWithInRange = Evaluator.IsWithIn(average_temp, referenceValue - 0.5, referenceValue + 0.5);
+            if ((deviation < 3) && IsWithInRange)
+                return string.Format(outputFormat, name, "ultra precise");
+            else if ((deviation < 5) && IsWithInRange)
                 return string.Format(outputFormat, name, "very precise");
             else
-                return string.Format(outputFormat, name, "ultra precise");
+                return string.Format(outputFormat, name, "precise");
         }
     }
 
@@ -38,13 +43,7 @@ namespace LogEvaluetor
         public override string Evaluate()
         {
             IsEvelueted = true;
-            foreach (var reading in readings)
-            {
-                var actualDeviation = Math.Abs(referenceValue - reading.value);
-                if (actualDeviation > 1)
-                    return string.Format(outputFormat, name, "discard");
-            }
-            return string.Format(outputFormat, name, "keep");
+            return KeepDiscardEvaluation(1);
 
         }
     }
@@ -59,13 +58,7 @@ namespace LogEvaluetor
         public override string Evaluate()
         {
             IsEvelueted = true;
-            foreach (var reading in readings)
-            {
-                var actualDeviation = Math.Abs(referenceValue - reading.value);
-                if (actualDeviation > 3)
-                    return string.Format(outputFormat, name, "discard");
-            }
-            return string.Format(outputFormat, name, "keep");
+            return KeepDiscardEvaluation(3);
         }
     }
 }

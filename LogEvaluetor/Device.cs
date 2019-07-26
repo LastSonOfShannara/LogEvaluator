@@ -25,9 +25,19 @@ namespace LogEvaluetor
             double value;
 
             if ((readingValues.Length != 2) || !DateTime.TryParse(readingValues[0], out time) || !double.TryParse(readingValues[1].Replace('.', ','), out value))
-                throw new Exception($"Error processing reading of {name}: {readingValues}");
+                throw new ReadingBadFormatException($"Error processing reading of {name}: { string.Join(' ', readingValues) }");
 
             readings.Add((time, value));
+        }
+        protected string KeepDiscardEvaluation(int limit)
+        {
+            foreach (var reading in readings)
+            {
+                var actualDeviation = Math.Abs(referenceValue - reading.value);
+                if (actualDeviation > limit)
+                    return string.Format(outputFormat, name, "discard");
+            }
+            return string.Format(outputFormat, name, "keep");
         }
 
         public abstract string Evaluate();

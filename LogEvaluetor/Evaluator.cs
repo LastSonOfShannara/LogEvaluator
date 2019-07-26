@@ -13,7 +13,11 @@ namespace LogEvaluetor
             public double carb_monoxide;
         }
 
-        public static bool IsNumeric(string val) => double.TryParse(val.Replace('.', ','), out double result);
+        public static bool IsDateTime(string val) => DateTime.TryParse(val, out DateTime result);
+        public static bool IsWithIn<T>(T value, T min, T max) where T : IComparable 
+        {
+            return (value.CompareTo(min) >= 0) && (value.CompareTo(max) <= 0);
+        }
 
         /// <summary>
         /// Evaluation of log of Devices and their readings
@@ -25,6 +29,7 @@ namespace LogEvaluetor
         /// <exception cref="LogEvaluetor.UnknownDeviceException"></exception>
         /// <exception cref="LogEvaluetor.ReferenceLineException"></exception>
         /// <exception cref="LogEvaluetor.DeviceNotInicializedException"></exception>
+        /// <exception cref="LogEvaluetor.ReadingBadFormatException"></exception>
 
 
 
@@ -48,7 +53,7 @@ namespace LogEvaluetor
                 {
                     var reading = line.Split(' ');
 
-                    if (IsNumeric(reading[1]))
+                    if (IsDateTime(reading[0])) //Reading detected
                     {
                         if (device != null && !device.IsEvelueted)
                             device.AddReading(reading);
